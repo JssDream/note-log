@@ -9,11 +9,12 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
 </head>
 <body>
-  <nav>
+  <!--<nav>
     <a href="#/">项目</a>
     <a href="#/home1">home1</a>
     <a href="#/bar/a">bar/a</a>
-  </nav>
+    <a href="#/spring/7 Annotation">spring</a>
+  </nav>-->
   <div id="app">正在加载中。。。。</div>
 <!--  <div id="gitalk-container"></div>-->
   <script>
@@ -25,14 +26,20 @@
       // * [home2](home2)
       // * [bar](bar/)
       // * [bar/a](bar/a)
-      // loadSidebar: true
+      // loadSidebar: true,
 
-      //定制导航栏 _navbar.md 格式同侧边栏
+      //显示页面目录(当前页面的标题)
+      //定制的侧边栏仅显示了页面的链接。
+      //还可以设置在侧边栏显示当前页面的目录(标题)
+      // loadSidebar: true,
+      // subMaxLevel: 3,
+
+      //定制导航栏 _navbar.md
       // * 根目录 （嵌套格式）
       //  * [home1](home1)
       //  * [home2](home2)
       //  * [guide](guide)
-      //loadNavbar: true
+      loadNavbar: true,
 
       //搜索
       // 完整配置参数
@@ -50,7 +57,20 @@
         //   '/': 'No Results'
         // },
         depth: 5,                       // 搜索标题的最大程级, 1 - 6
-      }
+      },
+      //封面 _coverpage.md
+      //目前的背景是随机生成的渐变色，每次刷新都会显示不同的颜色。
+      //docsify封面支持自定义背景色或者背景图，在_coverpage.md文档末尾添加
+      //注意：
+      //1.自定义背景配置一定要在_coverpage.md文档末尾。
+      //2.背景图片和背景色只能有一个生效.
+      //3.背景色一定要是#2f4253这种格式的
+      coverpage: true,
+      //把封面作为首页,
+      //配置了封面后，封面和首页是同时出现的，封面在上面，首页在下面。
+      //通过设置onlyCover参数，可以让docsify网站首页只显示封面，
+      //原来的首页通过http://localhost:3000/#/README访问
+      // onlyCover: true,
     }
   </script>
   <!-- Docsify v4 -->

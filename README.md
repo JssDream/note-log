@@ -1,3 +1,3 @@
-# Headline
+# 笔记
 
-> An awesome project.
+> An awesome note.
