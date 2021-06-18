@@ -2,8 +2,17 @@
 
 1. 加载过程
    1. Loading
-      
-      1. 双亲委派，主要出于安全来考虑
+      > loadClass(String name, boolean resolve)
+          > 先去调用findLoadedClass这个方法，查看这个Class是否已经别加载，有直接返回
+          > 没有进行去父类加载器，递归调用loadClass()
+          > 如果父类加载器是null，说明是启动类加载器，查找对应的Class
+          > 如果都没有找到，就调用findClass(String)
+      > findClass(String name)
+          > 根据名称或位置加载.class字节码,然后使用defineClass
+          > 通常由子类去实现
+      > defineClass(String name, byte[] b, int off, int len)
+          > 把字节码转化为Class
+      1. 双亲委派，主要出于安全来考虑  CustomClassLoader(自定义)——>AppClassLoader——>ExtClassLoader——>BootstrapClassLoader，返回去
       
       2. LazyLoading 五种情况
       
@@ -26,9 +35,10 @@
          1. extends ClassLoader
          2. overwrite findClass() -> defineClass(byte[] -> Class clazz)
          3. 加密
-         4. <font color=red>第一节课遗留问题：parent是如何指定的，打破双亲委派，学生问题桌面图片</font>
-            1. 用super(parent)指定
-            2. 双亲委派的打破
+         4. <font color=red>第一节课遗留问题：a.parent是如何指定的;b.打破双亲委派</font>
+            a. 用super(parent)指定 系统默认是AppClassLoader，可以使用ClassLoader.getSystemClassLoader(),系统级别加载【不需要掌握】
+            
+            b. 双亲委派的打破
                1. 如何打破：重写loadClass（）
                2. 何时打破过？
                   1. JDK1.2之前，自定义ClassLoader都必须重写loadClass()
