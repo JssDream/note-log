@@ -13,7 +13,9 @@
       > defineClass(String name, byte[] b, int off, int len)
           > 把字节码转化为Class
       1. 双亲委派，主要出于安全来考虑  CustomClassLoader(自定义)——>AppClassLoader——>ExtClassLoader——>BootstrapClassLoader，返回去
-      
+            >为什么使用双亲委派？直接加载不好嘛
+            - 主要原因安全方面考虑 【如果自定义类一个跟jvm一样的类，加载的话会被替换掉原来的】
+            - 次要原因节约资源【已经加载过的类，不需要加载，直接拿来用就好了，再次加加载会资源浪费】
       2. LazyLoading 五种情况
       
          1. –new getstatic putstatic invokestatic指令，访问final变量除外
