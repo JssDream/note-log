@@ -5,5 +5,5 @@
 *.iml
 **/target
 *.mp3
-*.png
+#*.png
 jrebel-classpath-*.jar
