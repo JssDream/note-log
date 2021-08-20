@@ -1,7 +1,7 @@
 * [home](README.md)
 
 * Spring
-  * [Spring 注解](Spring/7Annotation.md)
+  * [Spring 注解](Java/Spring/7Annotation.md)
   
 * Java
   * [微服务](Java/micro-service/MicroService.md)
