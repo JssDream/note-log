@@ -112,11 +112,49 @@ result:shuai02
 
 Redis 提供了 Pub/Sub 功能，实现简单的订阅功能，不了解的胖友，可以看看 [「Redis 文档 —— Pub/Sub」](http://redis.cn/topics/pubsub.html) 。
 
-### 5.4.1 源码解析
+### 5.4.1 简介
+
+> Redis提供了基于“发布/订阅”模式的消息机制。此种模式下，消息发布者和订阅者不进行直接通信，发布者客户端向指定的频道（channel） 发布消息，订阅该频道的每个客户端都可以收到该消息，如图1所示。
+> Redis提供了若干命令支持该功能，在实际应用开发时，能够为此类问题提供实现方法。
+
+![](images/Redis发布订阅模型.jpg)
+
+#### 两种信息机制
+
+1. 订阅指定频道-SUBSCRIBE【ChannelTopic】
+   `SUBSCRIBE channel [channel2]...`
+   `SUBSCRIBE 频道名 [频道名2]...`
+```
+127.0.0.1:6379> subscribe channel1
+Reading messages... (press Ctrl-C to quit)
+1) "subscribe"
+2) "channel1"
+3) (integer) 1
+
+```
+   >Redis采用SUBSCRIBE命令订阅某个频道，其返回值包括客户端订阅的频道，目前已订阅的频道数量，以及接收到的消息，其中subscribe表示已经成功订阅了某个频道。
+2. 订阅匹配频道-PSUBSCRIBE【PatternTopic】
+   匹配模式可以订阅名称匹配符合的频道
+   `PSUBSCRIBE channel*`
+   代表订阅`channel`开头的频道
+```
+127.0.0.1:6379> psubscribe channel*
+Reading messages... (press Ctrl-C to quit)
+1) "psubscribe"
+2) "channel*"
+3) (integer) 1
+```
+>模式匹配功能允许客户端订阅符合某个模式的频道，Redis采用PSUBSCRIBE订阅符合某个模式所有频道，用`*`表示模式，`*`可以被任意值代替。
+   
+>假设客户端同时订阅了某种模式和符合该模式的某个频道，那么发送给这个频道的消息将被客户端接收到两次，只不过这两条消息的类型不同，一个是message类型，一个是pmessage类型，但其内容相同
+
+>匹配模式要注意,匹配的名称可以在以后出现,但凡是知道会有哪些频道出现,都尽量不要用这个模式,可能会在之后出现一个你没有预料到的频道的消息
+
+### 5.4.2 源码解析
 
 暂时不提供，感兴趣的胖友，可以自己看看最核心的 [`org.springframework.data.redis.listener.RedisMessageListenerContainer`](https://github.com/spring-projects/spring-data-redis/blob/master/src/main/java/org/springframework/data/redis/listener/RedisMessageListenerContainer.java) 类，Redis 消息监听器容器，基于 Pub/Sub 的 [SUBSCRIBE](http://redis.cn/commands/subscribe.html)、[PSUBSCRIBE](http://redis.cn/commands/psubscribe.html) 命令实现，我们只需要添加相应的 [`org.springframework.data.redis.connection.MessageListener`](https://github.com/spring-projects/spring-data-redis/blob/64b89137648f6c0e0c810c624e481bcfc0732f4e/src/main/java/org/springframework/data/redis/connection/MessageListener.java) 即可。不算复杂，1000 多行，只要调试下核心的功能即可。
 
-### 5.4.2 具体示例
+### 5.4.3 具体示例
 
 > 示例代码对应测试类：[PubSubTest](https://github.com/YunaiV/SpringBoot-Labs/blob/master/lab-11-spring-data-redis/lab-07-spring-data-redis-with-jedis/src/test/java/cn/iocoder/springboot/labs/lab10/springdatarediswithjedis/PubSubTest.java) 。
 
@@ -238,9 +276,38 @@ pattern：TEST
 
 * 整整齐齐，发送和订阅都成功了。注意，**线程编号** 。
 
-### 5.4.3 闲话两句
 
-Redis 提供了 PUB/SUB 订阅功能，实际我们在使用时，一定要注意，它提供的**不是一个可靠的** 订阅系统。例如说，有消息 PUBLISH 了，Redis Client 因为网络异常断开，无法订阅到这条消息。等到网络恢复后，Redis Client 重连上后，是无法获得到该消息的。相比来说，成熟的消息队列提供的订阅功能，因为消息会进行持久化（Redis 是不持久化 Publish 的消息的），并且有客户端的 ACK 机制做保障，所以即使网络断开重连，消息一样不会丢失。
+### 5.4.4 使用场景
+
+#### 1. 业务解耦
+  聊天室、公告牌、服务之间利用消息解耦都可以使用发布订阅模式。
+
+   ```
+   下面以简单的服务解耦进行说明。如图所示，图中有两套业务，上面为视频管理系统，负责管理视频信息；下面为视频服务面向客户，用户可以通过各种客户端（手机、 浏览器、 接口） 获取到视频信息。
+   ```
+![](images/Redis发布订阅模型.jpg)
+
+假如视频管理员在视频管理系统中对视频信息进行了变更，希望及时通知给视频服务端，就可以采用发布订阅的模式，发布视频信息变化的消息到指定频道，视频服务订阅这个频道及时更新视频信息，通过这种方式可以有效解决两个业务的耦合性。
+
+#### 2. 框架应用
+  Redisson的分布式锁的实现就采用了发布订阅模式：获取锁时，若获取不成功则订阅释放锁的消息，在收到释放锁的消息前阻塞，收到释放锁的消息后再去循环获取锁。
+#### 3. 异步处理
+  可以采用Redis的发布订阅模式来实现异步处理，从而提高并发量。
+
+比如，秒杀功能就可以这样做：
+
+1. 秒杀之前，将产品的库存从数据库同步到Redis
+2. 秒杀时，通过lua脚本保证原子性
+   1. 扣减库存
+   2. 将订单数据通过Redis的发布订阅功能发布出去
+   3. 返回1（表示成功）
+3. 订单数据的Redis订阅者处理订单数据
+
+### 5.4.5 场景
+
+Redis 提供了 PUB/SUB 订阅功能，实际我们在使用时，一定要注意，它提供的**不是一个可靠的** 订阅系统。
+例如说，有消息 PUBLISH 了，Redis Client 因为网络异常断开，无法订阅到这条消息。等到网络恢复后，Redis Client 重连上后，是无法获得到该消息的。
+相比来说，成熟的消息队列提供的订阅功能，因为消息会进行持久化（Redis 是不持久化 Publish 的消息的），并且有客户端的 ACK 机制做保障，所以即使网络断开重连，消息一样不会丢失。
 
 > Redis 5.0 版本后，正式发布 Stream 功能，相信是有可能可以替代掉 Redis Pub/Sub 功能，提供可靠的消息订阅功能。
 
@@ -250,7 +317,7 @@ Redis 提供了 PUB/SUB 订阅功能，实际我们在使用时，一定要注�
 
 对了，我们有个管理系统里面有 Websocket 需要实时推送管理员消息，因为不知道管理员当前连接的是哪个 Websocket 服务节点，所以我们是通过 Redis Pub/Sub 功能，广播给所有 Websocket 节点，然后每个 Websocket 节点判断当前管理员是否连接的是它，如果是，则进行 Websocket 推送。因为之前网络偶尔出故障，会存在消息丢失，所以近期我们替换成了 RocketMQ 的广播消费，替代 Redis Pub/Sub 功能。
 
-当然，不能说 Redis Pub/Sub 毫无使用的场景，以下艿艿来列举几个：
+当然，不能说 Redis Pub/Sub 毫无使用的场景，列举几个：
 
 * 1、在使用 Redis Sentinel 做高可用时，Jedis 通过 Redis Pub/Sub 功能，实现对 Redis 主节点的故障切换，刷新 Jedis 客户端的主节点的缓存。如果出现 Redis Connection 订阅的异常断开，会重新**主动** 去 Redis Sentinel 的最新主节点信息，从而解决 Redis Pub/Sub 可能因为网络问题，丢失消息。
 * 2、Redis Sentinel 节点之间的部分信息同步，通过 Redis Pub/Sub 订阅发布。

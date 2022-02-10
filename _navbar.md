@@ -5,8 +5,8 @@
   
 * Java
   * [微服务](Java/micro-service/MicroService.md)
-  * [:tada: 类加载](Java/JVM/02_ClassLoad.md)
-  * [:tada: 双亲委派机制](Java/JVM/双亲委派机制.md)
+  * [类加载](Java/JVM/02_ClassLoad.md)
+  * [双亲委派机制](Java/JVM/双亲委派机制.md)
   
 * DB
   * [MySQL](DB/mysql.md)
