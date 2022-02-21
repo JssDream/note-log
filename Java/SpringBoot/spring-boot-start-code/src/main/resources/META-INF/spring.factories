@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.js.code.CodeAutoConfiguration
+com.js.code.config.CodeAutoConfiguration

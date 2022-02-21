@@ -1,4 +1,4 @@
-package com.js.code;
+package com.js.code.config;
 
 
 /**
