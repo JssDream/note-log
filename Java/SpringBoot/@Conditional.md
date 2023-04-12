@@ -226,6 +226,23 @@ Linux = SystemBean(systemName=Linux系统, systemCode=001)
 
 但是你现在同时注入了两个SystemBean,你这个时候有个名称为linux，它不知道应该注入那个Bean,所以采用了报错的策略。
 
+**springboot对@Conditional的扩展**
+- @Conditional是springboot实现自动配置的关键基础能力。在此基础上，springboot又创建了多个适用于不同场景的组合条件注解。
+- @ConditionalOnBean：当上下文中有指定Bean的条件下进行实例化。
+- @ConditionalOnMissingBean：当上下文没有指定Bean的条件下进行实例化。
+- @ConditionalOnClass：当classpath类路径下有指定类的条件下进行实例化。
+- @ConditionalOnMissingClass：当类路径下没有指定类的条件下进行实例化。
+- @ConditionalOnWebApplication：当项目本身是一个Web项目时进行实例化。
+- @ConditionalOnNotWebApplication：当项目本身不是一个Web项目时进行实例化。
+- @ConditionalOnProperty：当指定的属性有指定的值时进行实例化。
+- @ConditionalOnExpression：基于SpEL表达式的条件判断。
+- @ConditionalOnJava：当JVM版本为指定的版本范围时进行实例化。
+- @ConditionalOnResource：当类路径下有指定的资源时进行实例化。
+- @ConditionalOnJndi：在JNDI存在时触发实例化。
+- @ConditionalOnSingleCandidate：当指定的Bean在容器中只有一个，或者有多个但是指定了首选的Bean时触发实例化。
+
+> 参考：https://blog.csdn.net/a8892117/article/details/101172493
+
 
 # @ConditionalOnBean与@ConditionalOnClass
 
@@ -434,3 +451,5 @@ people = null
 ```
 @Autowired(required=false) //required=false 的意思就是允许当前的Bean对象为null。
 ```
+
+> 参考：https://blog.csdn.net/yudiandemingzi/article/details/99993933

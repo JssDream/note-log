@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
+ * https://www.jianshu.com/p/37a46741a2ad
+ *
  * Created by Js on 2022/2/18 .
  **/
 @Configuration
